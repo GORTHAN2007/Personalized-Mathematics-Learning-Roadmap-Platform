@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'MathPath AI Backend is running (JavaScript)' });
+  res.json({ status: 'ok', message: 'Backend is running (JavaScript)' });
 });
 
 module.exports = app;
