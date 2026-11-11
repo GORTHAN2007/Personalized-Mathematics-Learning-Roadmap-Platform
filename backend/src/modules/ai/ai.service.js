@@ -7,7 +7,7 @@ Student level: ${level}
 Student question: ${question}
 
 Explain clearly in simple language with one small worked example.
-Keep it under 250 words. Use plain text, no markdown headings.`;
+Keep it under 250 words. Plain text only: no markdown, no asterisks, no greeting.`;;
   return askGemini(prompt);
 }
 
