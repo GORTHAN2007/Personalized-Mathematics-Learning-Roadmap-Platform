@@ -1,0 +1,21 @@
+{
+  "name": "mathpath-ai",
+  "version": "1.0.0",
+  "description": "Community-Driven Personalized Mathematics Learning Roadmap Platform",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "install:all": "npm install && npm --prefix frontend install && npm --prefix backend install"
+  },
+  "keywords": [
+    "mathematics",
+    "learning-roadmap",
+    "react",
+    "express",
+    "prisma"
+  ],
+  "author": "",
+  "license": "ISC"
+}
