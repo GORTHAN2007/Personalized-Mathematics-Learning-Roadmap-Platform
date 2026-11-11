@@ -1,4 +1,186 @@
 // Backend Prisma Schema
+// MathPath AI - Community-Driven Personalized Mathematics Learning Roadmap Platform
+
 generator client {
   provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+enum Role {
+  STUDENT
+  EDUCATOR
+  ADMIN
+}
+
+enum Difficulty {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum NodeStatus {
+  LOCKED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id            String             @id @default(uuid())
+  email         String             @unique
+  passwordHash  String
+  name          String
+  avatarUrl     String?
+  role          Role               @default(STUDENT)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  roadmaps      Roadmap[]
+  progress      TopicProgress[]
+  results       AssessmentResult[]
+  posts         Post[]
+  comments      Comment[]
+  votes         Vote[]
+}
+
+model Subject {
+  id          String   @id @default(uuid())
+  title       String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  topics      Topic[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Topic {
+  id           String          @id @default(uuid())
+  subjectId    String
+  subject      Subject         @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  title        String
+  slug         String          @unique
+  description  String?
+  difficulty   Difficulty      @default(BEGINNER)
+  orderIndex   Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  progress     TopicProgress[]
+  roadmapNodes RoadmapNode[]
+  questions    Question[]
+}
+
+model Roadmap {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  isPublic    Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  nodes       RoadmapNode[]
+}
+
+model RoadmapNode {
+  id          String     @id @default(uuid())
+  roadmapId   String
+  roadmap     Roadmap    @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  topicId     String
+  topic       Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  status      NodeStatus @default(LOCKED)
+  positionX   Float      @default(0)
+  positionY   Float      @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([roadmapId, topicId])
+}
+
+model TopicProgress {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId     String
+  topic       Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  status      NodeStatus @default(IN_PROGRESS)
+  completedAt DateTime?
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([userId, topicId])
+}
+
+model Assessment {
+  id          String             @id @default(uuid())
+  title       String
+  description String?
+  questions   Question[]
+  results     AssessmentResult[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+}
+
+model Question {
+  id            String     @id @default(uuid())
+  assessmentId  String
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  topicId       String?
+  topic         Topic?     @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  prompt        String
+  options       Json
+  correctAnswer String
+  explanation   String?
+  difficulty    Difficulty @default(BEGINNER)
+}
+
+model AssessmentResult {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  score        Float
+  details      Json?
+  createdAt    DateTime   @default(now())
+}
+
+model Post {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  tags      String[]
+  comments  Comment[]
+  votes     Vote[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Vote {
+  id        String   @id @default(uuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int
+
+  @@unique([postId, userId])
 }
