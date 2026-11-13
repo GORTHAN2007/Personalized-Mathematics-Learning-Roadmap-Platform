@@ -38,3 +38,4 @@ lerna-debug.log*
 # Prisma generated artifacts & local SQLite
 prisma/*.db
 prisma/*.db-journal
+backend/prisma/seedDemo.js
