@@ -83,7 +83,7 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
         overflow: 'hidden',
       }}
     >
-      {/* 1. Animated Video Background from webm */}
+      {/* 1. Animated Video Background */}
       <video
         autoPlay
         loop
@@ -96,16 +96,14 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          opacity: 0.38,
-          filter: 'brightness(0.7) contrast(1.2)',
           pointerEvents: 'none',
           zIndex: 0,
         }}
       >
-        <source src="/assets/auth-grid-bg.webm" type="video/webm" />
+        <source src="/assets/auth-bg.mp4" type="video/mp4" />
       </video>
 
-      {/* 2. Deep Vignette & Dark Overlay to keep overall background deep and black */}
+      {/* 2. Subtle Radial Vignette for Depth */}
       <div
         style={{
           position: 'absolute',
@@ -113,7 +111,7 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.85) 60%, #000000 100%)',
+          background: 'radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.65) 75%, #000000 100%)',
           pointerEvents: 'none',
           zIndex: 1,
         }}
@@ -140,12 +138,17 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
           position: 'relative',
           maxWidth: '440px',
           width: '100%',
-          padding: '2rem 1.5rem',
+          padding: '2.5rem 2rem',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
           zIndex: 3,
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '16px',
         }}
       >
         {/* Main Headline */}
@@ -156,35 +159,16 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
             letterSpacing: '-0.03em',
             color: '#ffffff',
             lineHeight: 1.25,
-            marginBottom: '0.75rem',
+            marginBottom: '2rem',
+            width: '100%',
+            overflowWrap: 'break-word',
+            wordBreak: 'break-word',
           }}
         >
           {mode === 'signup'
-            ? 'Sign up below to unlock the full potential of MathPath.'
+            ? 'Sign up below to unlock the full potential of MathPath.AI'
             : 'Log in below to continue your mathematics roadmap.'}
         </h1>
-
-        {/* Privacy Policy Link */}
-        <p
-          style={{
-            fontSize: '0.85rem',
-            color: '#a1a1aa',
-            marginBottom: '2rem',
-          }}
-        >
-          By continuing, you agree to our{' '}
-          <a
-            href="#privacy"
-            onClick={(e) => {
-              e.preventDefault();
-              alert('MathPath Privacy Policy: Your data is secure and encrypted.');
-            }}
-            style={{ color: '#ffffff', textDecoration: 'underline' }}
-          >
-            privacy policy
-          </a>
-          .
-        </p>
 
         {/* Feedback Alert */}
         {feedback && (
@@ -210,7 +194,7 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
         )}
 
         {/* Social Auth Buttons (Apple + Google) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', width: '100%', marginBottom: '2rem' }}>
           {/* Apple */}
           <button
             type="button"
@@ -352,21 +336,6 @@ export default function AuthPage({ onLoginSuccess, onGuestExplore }) {
             }}
           >
             {mode === 'signup' ? 'Already have an account? Log in' : "Don't have an account? Sign up"}
-          </button>
-
-          <button
-            type="button"
-            onClick={onGuestExplore}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#71717a',
-              fontSize: '0.8rem',
-              cursor: 'pointer',
-              marginTop: '0.5rem',
-            }}
-          >
-            Close
           </button>
         </div>
       </div>
