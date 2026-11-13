@@ -9,7 +9,10 @@ function getClient() {
     throw new Error('GEMINI_API_KEY is missing in backend/.env');
   }
   if (!client) {
-    client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    client = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: { apiVersion: 'v1beta' },
+    });
   }
   return client;
 }
