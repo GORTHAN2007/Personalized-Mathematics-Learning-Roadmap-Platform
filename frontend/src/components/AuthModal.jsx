@@ -83,7 +83,7 @@ export default function AuthModal({
           {/* Centered Heading */}
           <h2 className="auth-heading">
             {mode === 'signup' 
-              ? 'Sign up below to unlock the full potential of MathPath.'
+              ? 'Sign up below to unlock the full potential of MathPath.AI'
               : 'Log in below to continue your mathematics roadmap.'}
           </h2>
 
