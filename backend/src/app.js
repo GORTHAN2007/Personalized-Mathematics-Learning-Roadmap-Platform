@@ -6,6 +6,7 @@ const aiRoutes = require('./modules/ai/ai.routes');
 const subjectsRoutes = require('./modules/subjects/subjects.routes');
 const topicsRoutes = require('./modules/topics/topics.routes');
 const roadmapRoutes = require('./modules/roadmap/roadmap.routes');
+const assessmentRoutes = require('./modules/assessment/assessment.routes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/subjects', subjectsRoutes);
 app.use('/api/v1/topics', topicsRoutes);
 app.use('/api/v1/roadmap', roadmapRoutes);
+app.use('/api/v1/assessment', assessmentRoutes);
 
 // Error Handling Middlewares
 app.use(notFoundHandler);
