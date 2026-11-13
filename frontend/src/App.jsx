@@ -12,6 +12,7 @@ import RoadmapPage from './pages/RoadmapPage';
 import CommunityPage from './pages/CommunityPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import AuthPage from './pages/AuthPage';
 
 // Data
 import { subjects } from './data/subjects';
@@ -33,7 +34,8 @@ export default function App() {
   // Authentication State
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('signup');
-  const [userSession, setUserSession] = useState({ name: 'Student Learner', email: 'kaif@college.edu' });
+  const [userSession, setUserSession] = useState(null);
+  const [showAuthLanding, setShowAuthLanding] = useState(true);
 
   // Resources Hub Filter
   const [resourceFilter, setResourceFilter] = useState('all');
@@ -206,6 +208,23 @@ export default function App() {
         onSuccessAuth={(user) => {
           setUserSession(user);
           setActivePage('dashboard');
+        }}
+      />
+    );
+  }
+
+  // When a new visitor arrives, present the dedicated Auth Landing Page
+  if (!userSession && showAuthLanding) {
+    return (
+      <AuthPage
+        onLoginSuccess={(user) => {
+          setUserSession(user);
+          setShowAuthLanding(false);
+          setActivePage("dashboard");
+        }}
+        onGuestExplore={() => {
+          setShowAuthLanding(false);
+          setActivePage("dashboard");
         }}
       />
     );
