@@ -372,7 +372,7 @@ export default function App() {
         <CheatsheetPanel onClose={() => setActivePanel(null)} />
       )}
       {activePanel === 'simulations' && (
-        <SimulationsPanel onClose={() => setActivePanel(null)} />
+        <SimulationsPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
       )}
     </div>
   );

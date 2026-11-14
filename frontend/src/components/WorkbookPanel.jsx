@@ -102,10 +102,30 @@ export default function WorkbookPanel({ onClose, currentSubject, userSession }) 
     setTimeout(() => setSaved(false), 1200);
   };
 
-  const handleAddNote = async () => {
-    if (!newTitle.trim()) return;
+  const handleAddNote = async (titleToUse) => {
+    const title = (typeof titleToUse === 'string' ? titleToUse : newTitle).trim() || 'Untitled Note';
     const tag = currentSubject?.title || 'General';
 
+    // Optimistically create new note in local state right away so it shows instantly
+    const tempId = `note-${Date.now()}`;
+    const newNote = {
+      id: tempId,
+      title,
+      content: '',
+      tag,
+      createdAt: new Date().toISOString()
+    };
+
+    setNotes(prev => {
+      const updated = [newNote, ...prev];
+      localStorage.setItem('mathpath_notes', JSON.stringify(updated));
+      return updated;
+    });
+    setActiveNoteId(tempId);
+    setNewTitle('');
+    setIsAdding(false);
+
+    // Sync to backend if authenticated
     if (token) {
       try {
         const res = await fetch(API_BASE, {
@@ -115,35 +135,25 @@ export default function WorkbookPanel({ onClose, currentSubject, userSession }) 
             Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
-            title: newTitle.trim(),
+            title,
             content: '',
             tag
           })
         });
         const data = await res.json();
         if (res.ok && data.data) {
-          setNotes(prev => [data.data, ...prev]);
+          // Replace temporary id with real database id
+          setNotes(prev => {
+            const synced = prev.map(n => n.id === tempId ? data.data : n);
+            localStorage.setItem('mathpath_notes', JSON.stringify(synced));
+            return synced;
+          });
           setActiveNoteId(data.data.id);
         }
       } catch (err) {
-        console.error('Failed to create note:', err);
+        console.warn('Failed to sync new note to DB, preserved locally:', err);
       }
-    } else {
-      const newNote = {
-        id: Date.now().toString(),
-        title: newTitle.trim(),
-        content: '',
-        tag,
-        createdAt: new Date().toISOString()
-      };
-      const updated = [newNote, ...notes];
-      setNotes(updated);
-      setActiveNoteId(newNote.id);
-      localStorage.setItem('mathpath_notes', JSON.stringify(updated));
     }
-
-    setNewTitle('');
-    setIsAdding(false);
   };
 
   const handleDelete = async (id) => {
@@ -198,11 +208,11 @@ export default function WorkbookPanel({ onClose, currentSubject, userSession }) 
                     placeholder="Note title..."
                     style={addInputStyle}
                   />
-                  <button onClick={handleAddNote} style={smallBtnStyle}>✓</button>
+                  <button onClick={() => handleAddNote()} style={smallBtnStyle}>✓</button>
                   <button onClick={() => setIsAdding(false)} style={{ ...smallBtnStyle, background: 'rgba(255,255,255,0.05)' }}>✕</button>
                 </div>
               ) : (
-                <button onClick={() => setIsAdding(true)} style={newNoteBtnStyle}>
+                <button onClick={() => handleAddNote('New Note')} style={newNoteBtnStyle}>
                   <Plus size={14} /> New Note
                 </button>
               )}
