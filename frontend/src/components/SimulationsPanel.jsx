@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, PlayCircle, ExternalLink, Youtube } from 'lucide-react';
+import { X, PlayCircle, ExternalLink, Video } from 'lucide-react';
 
 const YOUTUBE_LESSONS = [
   {
@@ -71,7 +71,7 @@ export default function SimulationsPanel({ onClose }) {
         <div style={headerStyle}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ background: '#ef4444', borderRadius: '6px', padding: '4px', display: 'flex' }}>
-              <Youtube size={18} color="#fff" />
+              <Video size={18} color="#fff" />
             </div>
             <div>
               <h2 style={{ fontSize: '17px', fontWeight: 700, color: '#fff', margin: 0 }}>Visual Concept Lectures & Simulations</h2>
