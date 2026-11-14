@@ -14,6 +14,7 @@ export default function AIPanel({ topic: initialTopic = 'Linear Algebra' }) {
   // ── practice state ────────────────────────────────────────────────────────
   const [questions, setQuestions]         = useState([]);
   const [answers, setAnswers]             = useState({});   // { idx: chosenIndex }
+  const [difficulty, setDifficulty]       = useState('easy');
   const [practiceLoading, setPracticeLoading] = useState(false);
   const [practiceError, setPracticeError]     = useState('');
 
@@ -39,7 +40,7 @@ export default function AIPanel({ topic: initialTopic = 'Linear Algebra' }) {
     setQuestions([]);
     setAnswers({});
     try {
-      const data = await getPracticeQuestions(topic, 'easy', 5);
+      const data = await getPracticeQuestions(topic, difficulty, 5);
       setQuestions(data.questions);
     } catch (err) {
       setPracticeError(err.message);
@@ -170,6 +171,17 @@ export default function AIPanel({ topic: initialTopic = 'Linear Algebra' }) {
       gap: '10px',
       marginBottom: '20px',
     },
+    select: {
+      padding: '9px 12px',
+      borderRadius: '8px',
+      border: '1px solid #3f3f5a',
+      background: '#12121f',
+      color: '#e2e8f0',
+      fontSize: '14px',
+      cursor: 'pointer',
+      marginTop: '10px',
+      marginRight: '8px',
+    },
   };
 
   // helper: determine option display state
@@ -221,6 +233,16 @@ export default function AIPanel({ topic: initialTopic = 'Linear Algebra' }) {
       <hr style={s.divider} />
 
       {/* ── Practice section ──────────────────────────────────────────── */}
+      <select
+        style={s.select}
+        value={difficulty}
+        onChange={e => setDifficulty(e.target.value)}
+        disabled={practiceLoading}
+      >
+        <option value="easy">Easy</option>
+        <option value="medium">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
       <button
         style={s.btn(practiceLoading)}
         onClick={handlePractice}
