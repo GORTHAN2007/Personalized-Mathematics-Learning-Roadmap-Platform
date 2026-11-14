@@ -369,7 +369,7 @@ export default function App() {
         <WorkbookPanel currentSubject={currentSubject} userSession={userSession} onClose={() => setActivePanel(null)} />
       )}
       {activePanel === 'cheatsheet' && (
-        <CheatsheetPanel onClose={() => setActivePanel(null)} />
+        <CheatsheetPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
       )}
       {activePanel === 'simulations' && (
         <SimulationsPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
