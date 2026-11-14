@@ -280,9 +280,10 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  max-height: calc(100vh - 60px);
+  height: calc(100vh - 60px);
   position: sticky;
   top: 60px;
+  z-index: 25;
 }
 
 .sidebar-header {
@@ -416,7 +417,6 @@ body {
 .dashboard-content {
   flex: 1;
   padding: 36px 48px;
-  overflow-y: auto;
   max-width: 1040px;
 }
 
