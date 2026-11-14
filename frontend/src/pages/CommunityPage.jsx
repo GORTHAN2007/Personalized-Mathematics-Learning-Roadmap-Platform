@@ -1,19 +1,7 @@
 import React from 'react';
-import { MessageSquare, Sparkles, Users, Bell, Rocket, Compass } from 'lucide-react';
+import { MessageSquare, Sparkles, Users, Compass } from 'lucide-react';
 
 export default function CommunityPage() {
-  const [email, setEmail] = React.useState('');
-  const [subscribed, setSubscribed] = React.useState(false);
-
-  const handleNotify = (e) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setTimeout(() => setSubscribed(false), 3000);
-      setEmail('');
-    }
-  };
-
   return (
     <div className="page-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 120px)', textAlign: 'center', padding: '40px 24px' }}>
       
@@ -72,69 +60,6 @@ export default function CommunityPage() {
           <h3 style={cardTitleStyle}>Community Roadmaps</h3>
           <p style={cardDescStyle}>Fork, customize, and share community-tested roadmaps for college exams and competitions.</p>
         </div>
-      </div>
-
-      {/* Notify Form */}
-      <div style={{
-        backgroundColor: '#121217',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '16px',
-        padding: '24px 28px',
-        maxWidth: '460px',
-        width: '100%'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
-          <Bell size={16} color="#818cf8" />
-          <span style={{ fontSize: '14px', fontWeight: 600, color: '#f4f4f5' }}>Get notified at launch</span>
-        </div>
-        <p style={{ fontSize: '12px', color: '#71717a', marginBottom: '16px' }}>
-          Be the first to join the MathPath Community beta. No spam, ever.
-        </p>
-
-        {subscribed ? (
-          <div style={{ padding: '10px', backgroundColor: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '8px', color: '#86efac', fontSize: '13px', fontWeight: 500 }}>
-            ✓ You're on the early access list!
-          </div>
-        ) : (
-          <form onSubmit={handleNotify} style={{ display: 'flex', gap: '8px' }}>
-            <input 
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="Enter your email address"
-              required
-              style={{
-                flex: 1,
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.12)',
-                borderRadius: '8px',
-                padding: '10px 14px',
-                color: '#fff',
-                fontSize: '13px',
-                outline: 'none'
-              }}
-            />
-            <button 
-              type="submit"
-              style={{
-                background: '#6366f1',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '10px 16px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <Rocket size={14} />
-              <span>Notify Me</span>
-            </button>
-          </form>
-        )}
       </div>
     </div>
   );
