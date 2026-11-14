@@ -23,15 +23,6 @@ export default function VerticalIconBar({ activePage, setActivePage, onOpenContr
         >
           <ChevronLeft size={20} />
         </button>
-
-        {/* Quick Add / Contribute */}
-        <button 
-          className="icon-bar-btn"
-          title="Contribute Resource or Problem"
-          onClick={onOpenContribute}
-        >
-          <Plus size={20} />
-        </button>
       </div>
 
       {/* Primary Page Navigation */}
@@ -79,15 +70,6 @@ export default function VerticalIconBar({ activePage, setActivePage, onOpenContr
           onClick={() => setActivePage('community')}
         >
           <MessageSquare size={20} />
-        </button>
-
-        {/* Extra options */}
-        <button 
-          className="icon-bar-btn"
-          title="More Options"
-          onClick={() => setActivePage('subjects')}
-        >
-          <MoreHorizontal size={20} />
         </button>
       </nav>
 
