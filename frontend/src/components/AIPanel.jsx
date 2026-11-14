@@ -261,3 +261,4 @@ export default function AIPanel({ topic: initialTopic = 'Linear Algebra' }) {
     </div>
   );
 }
+
