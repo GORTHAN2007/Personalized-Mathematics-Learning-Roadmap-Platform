@@ -53,8 +53,16 @@ async function generatePracticeQuestions({ topic, difficulty = 'easy', count = 5
 Return ONLY a JSON array. Each item must look exactly like this:
 {"question": "text", "options": ["a","b","c","d"], "correctIndex": 0, "explanation": "text"}
 correctIndex is a number from 0 to 3. No markdown, no extra text.`;
-    const raw = await askGemini(prompt, { json: true });
-    return validateQuestions(JSON.parse(raw));
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            const raw = await askGemini(prompt, { json: true });
+            return validateQuestions(JSON.parse(raw));
+        } catch (err) {
+            lastError = err;
+        }
+    }
+    throw lastError;
 }
 
 module.exports = { explainTopic, generatePracticeQuestions };
