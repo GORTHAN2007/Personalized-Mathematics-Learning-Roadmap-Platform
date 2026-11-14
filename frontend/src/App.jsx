@@ -366,7 +366,7 @@ export default function App() {
 
       {/* Quick Action Panels */}
       {activePanel === 'workbook' && (
-        <WorkbookPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
+        <WorkbookPanel currentSubject={currentSubject} userSession={userSession} onClose={() => setActivePanel(null)} />
       )}
       {activePanel === 'cheatsheet' && (
         <CheatsheetPanel onClose={() => setActivePanel(null)} />

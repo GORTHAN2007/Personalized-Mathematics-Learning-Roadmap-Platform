@@ -1,29 +1,46 @@
-import React, { useState } from 'react';
-import { X, BookText, Plus, Trash2, Save, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, BookText, Plus, Trash2, Save, CheckCircle, Loader } from 'lucide-react';
 
-const SAMPLE_NOTES = [
-  {
-    id: 1,
-    title: 'Row Reduction Notes',
-    content: 'Key insight: A matrix is in RREF when each pivot is 1 and is the only nonzero entry in its column.\n\nSteps:\n1. Identify leftmost nonzero column\n2. Swap rows to put nonzero entry at top\n3. Scale to make pivot = 1\n4. Eliminate all other entries in pivot column',
-    tag: 'Linear Algebra',
-    createdAt: 'Nov 12',
-  },
-  {
-    id: 2,
-    title: 'Eigenvalue Intuition',
-    content: 'An eigenvector is a direction that only gets scaled (not rotated) by the transformation A.\n\nAv = λv\n\nTo find: det(A - λI) = 0',
-    tag: 'Linear Algebra',
-    createdAt: 'Nov 13',
-  },
-];
+const API_BASE = 'http://localhost:5001/api/v1/notes';
 
-export default function WorkbookPanel({ onClose, currentSubject }) {
-  const [notes, setNotes] = useState(SAMPLE_NOTES);
-  const [activeNoteId, setActiveNoteId] = useState(1);
+export default function WorkbookPanel({ onClose, currentSubject, userSession }) {
+  const [notes, setNotes] = useState([]);
+  const [activeNoteId, setActiveNoteId] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const token = localStorage.getItem('token');
+
+  // Fetch user notes from backend
+  useEffect(() => {
+    const fetchNotes = async () => {
+      if (!token) {
+        // Fallback local notes if not signed in
+        const local = JSON.parse(localStorage.getItem('mathpath_notes') || '[]');
+        setNotes(local);
+        if (local.length > 0) setActiveNoteId(local[0].id);
+        return;
+      }
+      try {
+        setLoading(true);
+        const res = await fetch(API_BASE, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok && data.data) {
+          setNotes(data.data);
+          if (data.data.length > 0) setActiveNoteId(data.data[0].id);
+        }
+      } catch (err) {
+        console.error('Failed to fetch notes:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotes();
+  }, [token]);
 
   const activeNote = notes.find(n => n.id === activeNoteId);
 
@@ -31,30 +48,97 @@ export default function WorkbookPanel({ onClose, currentSubject }) {
     setNotes(prev => prev.map(n => n.id === activeNoteId ? { ...n, content } : n));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!activeNote) return;
     setSaved(true);
+
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/${activeNote.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            title: activeNote.title,
+            content: activeNote.content,
+            tag: activeNote.tag
+          })
+        });
+      } catch (err) {
+        console.error('Failed to save note to DB:', err);
+      }
+    } else {
+      localStorage.setItem('mathpath_notes', JSON.stringify(notes));
+    }
+
     setTimeout(() => setSaved(false), 1500);
   };
 
-  const handleAddNote = () => {
+  const handleAddNote = async () => {
     if (!newTitle.trim()) return;
-    const newNote = {
-      id: Date.now(),
-      title: newTitle.trim(),
-      content: '',
-      tag: currentSubject?.title || 'General',
-      createdAt: 'Now',
-    };
-    setNotes(prev => [...prev, newNote]);
-    setActiveNoteId(newNote.id);
+    const tag = currentSubject?.title || 'General';
+
+    if (token) {
+      try {
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            title: newTitle.trim(),
+            content: '',
+            tag
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.data) {
+          setNotes(prev => [data.data, ...prev]);
+          setActiveNoteId(data.data.id);
+        }
+      } catch (err) {
+        console.error('Failed to create note:', err);
+      }
+    } else {
+      const newNote = {
+        id: Date.now().toString(),
+        title: newTitle.trim(),
+        content: '',
+        tag,
+        createdAt: new Date().toISOString()
+      };
+      const updated = [newNote, ...notes];
+      setNotes(updated);
+      setActiveNoteId(newNote.id);
+      localStorage.setItem('mathpath_notes', JSON.stringify(updated));
+    }
+
     setNewTitle('');
     setIsAdding(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
+    if (token) {
+      try {
+        await fetch(`${API_BASE}/${id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (err) {
+        console.error('Failed to delete note:', err);
+      }
+    }
+
     const remaining = notes.filter(n => n.id !== id);
     setNotes(remaining);
+    if (!token) {
+      localStorage.setItem('mathpath_notes', JSON.stringify(remaining));
+    }
     if (activeNoteId === id && remaining.length > 0) setActiveNoteId(remaining[0].id);
+    else if (remaining.length === 0) setActiveNoteId(null);
   };
 
   return (
@@ -66,14 +150,16 @@ export default function WorkbookPanel({ onClose, currentSubject }) {
             <BookText size={20} color="#818cf8" />
             <div>
               <h2 style={{ fontSize: '17px', fontWeight: 700, color: '#fff', margin: 0 }}>Interactive Workbook</h2>
-              <p style={{ fontSize: '12px', color: '#71717a', margin: 0 }}>Guided proofs & personal notes</p>
+              <p style={{ fontSize: '12px', color: '#71717a', margin: 0 }}>
+                {token ? `Saved to database (${userSession?.email || 'User'})` : 'Local mode (Sign in to sync to database)'}
+              </p>
             </div>
           </div>
           <button onClick={onClose} style={closeBtnStyle}><X size={18} /></button>
         </div>
 
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-          {/* Sidebar - note list */}
+          {/* Sidebar */}
           <div style={sidebarStyle}>
             <div style={{ padding: '12px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
               {isAdding ? (
@@ -97,28 +183,38 @@ export default function WorkbookPanel({ onClose, currentSubject }) {
             </div>
 
             <div style={{ overflowY: 'auto', flex: 1 }}>
-              {notes.map(note => (
-                <div
-                  key={note.id}
-                  onClick={() => setActiveNoteId(note.id)}
-                  style={{
-                    ...noteItemStyle,
-                    backgroundColor: activeNoteId === note.id ? 'rgba(129, 140, 248, 0.12)' : 'transparent',
-                    borderLeft: activeNoteId === note.id ? '2px solid #818cf8' : '2px solid transparent',
-                  }}
-                >
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#f4f4f5', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{note.title}</div>
-                    <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>{note.tag} · {note.createdAt}</div>
-                  </div>
-                  <button
-                    onClick={e => { e.stopPropagation(); handleDelete(note.id); }}
-                    style={{ background: 'none', border: 'none', color: '#52525b', cursor: 'pointer', padding: '2px', flexShrink: 0 }}
-                  >
-                    <Trash2 size={13} />
-                  </button>
+              {loading ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', color: '#71717a' }}>
+                  <Loader size={16} className="animate-spin" />
                 </div>
-              ))}
+              ) : notes.length === 0 ? (
+                <div style={{ padding: '16px', fontSize: '12px', color: '#71717a', textAlign: 'center' }}>
+                  No notes yet. Create one!
+                </div>
+              ) : (
+                notes.map(note => (
+                  <div
+                    key={note.id}
+                    onClick={() => setActiveNoteId(note.id)}
+                    style={{
+                      ...noteItemStyle,
+                      backgroundColor: activeNoteId === note.id ? 'rgba(129, 140, 248, 0.12)' : 'transparent',
+                      borderLeft: activeNoteId === note.id ? '2px solid #818cf8' : '2px solid transparent',
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: '13px', fontWeight: 600, color: '#f4f4f5', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{note.title}</div>
+                      <div style={{ fontSize: '11px', color: '#71717a', marginTop: '2px' }}>{note.tag || 'General'}</div>
+                    </div>
+                    <button
+                      onClick={e => { e.stopPropagation(); handleDelete(note.id); }}
+                      style={{ background: 'none', border: 'none', color: '#52525b', cursor: 'pointer', padding: '2px', flexShrink: 0 }}
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 
@@ -133,7 +229,7 @@ export default function WorkbookPanel({ onClose, currentSubject }) {
                   </button>
                 </div>
                 <textarea
-                  value={activeNote.content}
+                  value={activeNote.content || ''}
                   onChange={e => handleUpdateContent(e.target.value)}
                   placeholder="Start writing your notes, proofs, or problem solutions..."
                   style={editorStyle}
@@ -141,7 +237,7 @@ export default function WorkbookPanel({ onClose, currentSubject }) {
               </>
             ) : (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#52525b', fontSize: '14px' }}>
-                Create a note to get started
+                Create or select a note to start writing
               </div>
             )}
           </div>
