@@ -53,8 +53,46 @@ async function generatePracticeQuestions({ topic, difficulty = 'easy', count = 5
 Return ONLY a JSON array. Each item must look exactly like this:
 {"question": "text", "options": ["a","b","c","d"], "correctIndex": 0, "explanation": "text"}
 correctIndex is a number from 0 to 3. No markdown, no extra text.`;
-    const raw = await askGemini(prompt, { json: true });
-    return validateQuestions(JSON.parse(raw));
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            const raw = await askGemini(prompt, { json: true });
+            return validateQuestions(JSON.parse(raw));
+        } catch (err) {
+            lastError = err;
+        }
+    }
+    throw lastError;
 }
 
-module.exports = { explainTopic, generatePracticeQuestions };
+module.exports = { explainTopic, generatePracticeQuestions, suggestRoadmap };
+
+async function suggestRoadmap({ weakTopics, goal = '' }) {
+    const topicList = weakTopics.join(', ');
+    const goalClause = goal ? ` The student's goal is: ${goal}.` : '';
+    const prompt =
+        `A math student is weak in these topics: ${topicList}.${goalClause}\n` +
+        `Suggest a personalised study roadmap of 5 to 8 topics in the optimal learning order.\n` +
+        `Return ONLY a JSON array. Each item must look exactly like this:\n` +
+        `{"topic": "Topic name", "reason": "Why to study this next"}\n` +
+        `No markdown, no extra text.`;
+    let lastError;
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            const raw = await askGemini(prompt, { json: true });
+            const data = JSON.parse(raw);
+            if (!Array.isArray(data) || data.length < 5 || data.length > 8) {
+                throw new Error('AI returned wrong number of roadmap steps');
+            }
+            return data.map((item) => {
+                if (typeof item.topic !== 'string' || typeof item.reason !== 'string') {
+                    throw new Error('AI returned a malformed roadmap item');
+                }
+                return { topic: item.topic.trim(), reason: item.reason.trim() };
+            });
+        } catch (err) {
+            lastError = err;
+        }
+    }
+    throw lastError;
+}

@@ -1,4 +1,5 @@
 import React from 'react';
+import AIPanel from '../components/AIPanel';
 import { 
   ArrowRight, 
   Grid, 
@@ -89,6 +90,8 @@ export default function SubjectPage({ subjects, onSelectSubject, onGoToDashboard
           </div>
         ))}
       </div>
+
+      <AIPanel />
     </div>
   );
 }
