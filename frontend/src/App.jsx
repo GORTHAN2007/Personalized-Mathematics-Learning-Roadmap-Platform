@@ -4,6 +4,9 @@ import Navbar from './components/Navbar';
 import AuthModal from './components/AuthModal';
 import FloatingBanner from './components/FloatingBanner';
 import ResourceSection from './components/ResourceSection';
+import WorkbookPanel from './components/WorkbookPanel';
+import CheatsheetPanel from './components/CheatsheetPanel';
+import SimulationsPanel from './components/SimulationsPanel';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -39,6 +42,9 @@ export default function App() {
 
   // Resources Hub Filter
   const [resourceFilter, setResourceFilter] = useState('all');
+
+  // Panel State
+  const [activePanel, setActivePanel] = useState(null); // 'workbook' | 'cheatsheet' | 'simulations' | null
 
   // Currently active subject object
   const currentSubject = subjects.find(s => s.id === currentSubjectId) || subjects[0];
@@ -175,12 +181,11 @@ export default function App() {
   // Quick Action from Course Header
   const handleQuickAction = (action) => {
     if (action === 'workbook') {
-      alert(`Workbook Module: Ready for study on "${currentSubject.title}". Access guided proofs and exercises.`);
+      setActivePanel('workbook');
     } else if (action === 'cheatsheet') {
-      alert(`Formula Sheet for ${currentSubject.title}: Linear equations, determinant properties, and eigenbasis theorems loaded.`);
+      setActivePanel('cheatsheet');
     } else if (action === 'simulations') {
-      setActivePage('resources');
-      setResourceFilter('simulations');
+      setActivePanel('simulations');
     } else if (action === 'community') {
       setActivePage('community');
     }
@@ -358,6 +363,17 @@ export default function App() {
           setAuthModalOpen(false);
         }}
       />
+
+      {/* Quick Action Panels */}
+      {activePanel === 'workbook' && (
+        <WorkbookPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
+      )}
+      {activePanel === 'cheatsheet' && (
+        <CheatsheetPanel onClose={() => setActivePanel(null)} />
+      )}
+      {activePanel === 'simulations' && (
+        <SimulationsPanel onClose={() => setActivePanel(null)} />
+      )}
     </div>
   );
 }

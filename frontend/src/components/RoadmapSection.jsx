@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ChevronDown, 
   Check, 
@@ -7,6 +7,7 @@ import {
   Sparkles,
   ExternalLink 
 } from 'lucide-react';
+import StudyModal from './StudyModal';
 
 export default function RoadmapSection({ 
   units, 
@@ -17,6 +18,7 @@ export default function RoadmapSection({
   onCollapseAll 
 }) {
   const allExpanded = units.length > 0 && expandedUnitIds.length === units.length;
+  const [studyTarget, setStudyTarget] = useState(null); // { topic, unit }
 
   return (
     <section className="roadmap-sections-wrapper" aria-label="Curated Learning Units">
@@ -109,7 +111,7 @@ export default function RoadmapSection({
                             <button 
                               className="topic-action-btn"
                               title="Start Learning Topic"
-                              onClick={() => alert(`Starting demonstration module: ${topic.title}`)}
+                              onClick={() => setStudyTarget({ topic, unit })}
                             >
                               <Play size={11} style={{ display: 'inline', marginRight: 4 }} />
                               Study
@@ -129,6 +131,16 @@ export default function RoadmapSection({
           );
         })}
       </div>
+
+      {/* Study Modal */}
+      {studyTarget && (
+        <StudyModal
+          topic={studyTarget.topic}
+          unit={studyTarget.unit}
+          onClose={() => setStudyTarget(null)}
+          onMarkComplete={() => onToggleTopicCompletion(studyTarget.unit.id, studyTarget.topic.id)}
+        />
+      )}
     </section>
   );
 }
