@@ -1,26 +1,73 @@
 import React, { useState } from 'react';
 import { personalizedRoadmaps } from '../data/roadmapData';
-import { Sparkles, Calendar, Target, BookOpen, Clock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Calendar, Target, BookOpen, Clock, ArrowRight, CheckCircle2, Loader } from 'lucide-react';
 
 export default function RoadmapPage({ onSelectSubject, onGoToDashboard }) {
   // Form State
   const [interest, setInterest] = useState('data-science');
-  const [level, setLevel] = useState('Intermediate');
+  const [level, setLevel] = useState('Beginner');
   const [goal, setGoal] = useState('Machine Learning Foundations');
-  const [pace, setPace] = useState('Steady (4-6 hrs/week)');
+  const [pace, setPace] = useState('Casual (1-2 hrs/week)');
   const [activeRoadmap, setActiveRoadmap] = useState(personalizedRoadmaps['data-science']);
   const [isGenerated, setIsGenerated] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const handleGenerate = (e) => {
+  const handleGenerate = async (e) => {
     e.preventDefault();
-    // Match based on selected interest key from predefined JavaScript data
-    const matched = personalizedRoadmaps[interest] || personalizedRoadmaps['data-science'];
-    setActiveRoadmap(matched);
+    setLoading(true);
+
+    // Try AI generation if backend is reachable, fallback to tailored local roadmap
+    try {
+      const BASE = import.meta.env.VITE_API_URL 
+        ? `${import.meta.env.VITE_API_URL.replace(/\/$/, '')}/v1` 
+        : 'http://localhost:5001/api/v1';
+
+      const res = await fetch(`${BASE}/ai/suggest-roadmap`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weakTopics: [interest.replace('-', ' '), level],
+          goal: `${goal} at a ${pace} pace`
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.roadmap)) {
+        setActiveRoadmap({
+          track: `${goal} (${interest.replace('-', ' ').toUpperCase()})`,
+          duration: pace.includes('Casual') ? '12 Weeks' : pace.includes('Intensive') ? '4 Weeks' : '8 Weeks',
+          overview: `Custom AI-recommended progression tailored for ${level} students targeting "${goal}" at a ${pace} commitment.`,
+          milestones: data.roadmap.map((step, idx) => ({
+            phase: `Milestone ${idx + 1}: ${step.topic}`,
+            subject: interest.replace('-', ' '),
+            topics: [step.topic, `Core application: ${step.reason}`],
+            suggestedProjects: step.reason
+          }))
+        });
+        setIsGenerated(true);
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('AI roadmap endpoint not available, falling back to local template:', err);
+    }
+
+    // Dynamic Fallback Generator tailored to user input
+    const baseTemplate = personalizedRoadmaps[interest] || personalizedRoadmaps['data-science'];
+    const durationLabel = pace.includes('Casual') ? '12-14 Weeks • 1-2 hrs/week' : pace.includes('Intensive') ? '4-5 Weeks • 10+ hrs/week' : baseTemplate.duration;
+
+    setActiveRoadmap({
+      ...baseTemplate,
+      track: `${baseTemplate.track} - ${goal}`,
+      duration: durationLabel,
+      overview: `Tailored curriculum designed for ${level} level learners aiming for "${goal}". Progress at ${pace} pace to master foundational concepts without burnout.`,
+    });
     setIsGenerated(true);
+    setLoading(false);
   };
 
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ paddingBottom: '160px' }}>
       <div className="page-header">
         <h1 className="page-title">Personalized Roadmap Planner</h1>
         <p className="page-subtitle">
@@ -91,9 +138,18 @@ export default function RoadmapPage({ onSelectSubject, onGoToDashboard }) {
           </div>
         </div>
 
-        <button type="submit" className="btn-generate-roadmap">
-          <Sparkles size={16} />
-          <span>Generate Personalized Roadmap</span>
+        <button type="submit" className="btn-generate-roadmap" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader size={16} className="animate-spin" />
+              <span>Generating Tailored Path...</span>
+            </>
+          ) : (
+            <>
+              <Sparkles size={16} />
+              <span>Generate Personalized Roadmap</span>
+            </>
+          )}
         </button>
       </form>
 
@@ -139,7 +195,7 @@ export default function RoadmapPage({ onSelectSubject, onGoToDashboard }) {
           </h3>
 
           <div className="timeline-track">
-            {activeRoadmap.milestones.map((ms, index) => (
+            {activeRoadmap.milestones && activeRoadmap.milestones.map((ms, index) => (
               <div key={index} className="timeline-milestone-card">
                 <div className="milestone-badge-box">
                   {index + 1}
@@ -147,10 +203,10 @@ export default function RoadmapPage({ onSelectSubject, onGoToDashboard }) {
 
                 <div className="milestone-details" style={{ flex: 1 }}>
                   <h4>{ms.phase}</h4>
-                  <div className="milestone-subject">Domain: {ms.subject}</div>
+                  {ms.subject && <div className="milestone-subject">Domain: {ms.subject}</div>}
 
                   <div className="milestone-topics-list">
-                    {ms.topics.map(t => (
+                    {ms.topics && ms.topics.map(t => (
                       <span key={t} className="milestone-topic-chip">
                         <CheckCircle2 size={12} style={{ display: 'inline', marginRight: 4, color: '#10b981' }} />
                         {t}
@@ -158,9 +214,11 @@ export default function RoadmapPage({ onSelectSubject, onGoToDashboard }) {
                     ))}
                   </div>
 
-                  <div className="milestone-project-note">
-                    <strong>Recommended Practical Milestone:</strong> {ms.suggestedProjects}
-                  </div>
+                  {ms.suggestedProjects && (
+                    <div className="milestone-project-note">
+                      <strong>Recommended Practical Milestone:</strong> {ms.suggestedProjects}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
