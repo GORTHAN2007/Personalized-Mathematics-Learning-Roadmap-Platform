@@ -3,9 +3,33 @@ import { X, BookText, Plus, Trash2, Save, CheckCircle, Loader } from 'lucide-rea
 
 const API_BASE = 'http://localhost:5001/api/v1/notes';
 
+const DEFAULT_NOTES = [
+  {
+    id: 'welcome-note',
+    title: 'My Math Notes',
+    content: 'Welcome to your Interactive Workbook! Write proofs, theorems, or question solutions here. Changes are saved automatically.',
+    tag: 'Linear Algebra'
+  }
+];
+
 export default function WorkbookPanel({ onClose, currentSubject, userSession }) {
-  const [notes, setNotes] = useState([]);
-  const [activeNoteId, setActiveNoteId] = useState(null);
+  const [notes, setNotes] = useState(() => {
+    try {
+      const cached = localStorage.getItem('mathpath_notes');
+      return cached ? JSON.parse(cached) : DEFAULT_NOTES;
+    } catch {
+      return DEFAULT_NOTES;
+    }
+  });
+  const [activeNoteId, setActiveNoteId] = useState(() => {
+    try {
+      const cached = localStorage.getItem('mathpath_notes');
+      const parsed = cached ? JSON.parse(cached) : DEFAULT_NOTES;
+      return parsed.length > 0 ? parsed[0].id : null;
+    } catch {
+      return 'welcome-note';
+    }
+  });
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [saved, setSaved] = useState(false);
@@ -13,44 +37,48 @@ export default function WorkbookPanel({ onClose, currentSubject, userSession }) 
 
   const token = localStorage.getItem('token');
 
-  // Fetch user notes from backend
+  // Fetch user notes from backend if authenticated
   useEffect(() => {
+    if (!token) return;
+
+    let mounted = true;
     const fetchNotes = async () => {
-      if (!token) {
-        // Fallback local notes if not signed in
-        const local = JSON.parse(localStorage.getItem('mathpath_notes') || '[]');
-        setNotes(local);
-        if (local.length > 0) setActiveNoteId(local[0].id);
-        return;
-      }
       try {
         setLoading(true);
         const res = await fetch(API_BASE, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
-        if (res.ok && data.data) {
+        if (mounted && res.ok && data.data && data.data.length > 0) {
           setNotes(data.data);
-          if (data.data.length > 0) setActiveNoteId(data.data[0].id);
+          setActiveNoteId(data.data[0].id);
         }
       } catch (err) {
-        console.error('Failed to fetch notes:', err);
+        console.warn('Backend note sync offline, using local copy:', err);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
     fetchNotes();
+
+    return () => { mounted = false; };
   }, [token]);
 
   const activeNote = notes.find(n => n.id === activeNoteId);
 
   const handleUpdateContent = (content) => {
-    setNotes(prev => prev.map(n => n.id === activeNoteId ? { ...n, content } : n));
+    setNotes(prev => {
+      const updated = prev.map(n => n.id === activeNoteId ? { ...n, content } : n);
+      localStorage.setItem('mathpath_notes', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const handleSave = async () => {
     if (!activeNote) return;
     setSaved(true);
+
+    localStorage.setItem('mathpath_notes', JSON.stringify(notes));
 
     if (token) {
       try {
@@ -67,13 +95,11 @@ export default function WorkbookPanel({ onClose, currentSubject, userSession }) 
           })
         });
       } catch (err) {
-        console.error('Failed to save note to DB:', err);
+        console.warn('Could not sync note update to DB:', err);
       }
-    } else {
-      localStorage.setItem('mathpath_notes', JSON.stringify(notes));
     }
 
-    setTimeout(() => setSaved(false), 1500);
+    setTimeout(() => setSaved(false), 1200);
   };
 
   const handleAddNote = async () => {
