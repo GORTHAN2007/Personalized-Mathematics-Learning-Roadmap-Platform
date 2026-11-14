@@ -66,18 +66,31 @@ export default function ResourceSection({
                   <span>{item.likes}</span>
                 </button>
 
-                <button 
-                  className="nav-pill-btn"
-                  style={{ padding: '4px 8px', fontSize: '11.5px' }}
-                  onClick={() => {
-                    if (onSelectResource) onSelectResource(item);
-                    else alert(`Opening sample demonstration resource: "${item.title}"`);
-                  }}
-                  title="Open demonstration resource"
-                >
-                  <ExternalLink size={12} />
-                  <span>View</span>
-                </button>
+                {item.url ? (
+                  <a 
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="nav-pill-btn"
+                    style={{ padding: '4px 10px', fontSize: '11.5px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', color: '#818cf8', borderColor: 'rgba(129, 140, 248, 0.3)' }}
+                    title="Open live resource"
+                  >
+                    <ExternalLink size={12} />
+                    <span>Open</span>
+                  </a>
+                ) : (
+                  <button 
+                    className="nav-pill-btn"
+                    style={{ padding: '4px 8px', fontSize: '11.5px' }}
+                    onClick={() => {
+                      if (onSelectResource) onSelectResource(item);
+                    }}
+                    title="Open demonstration resource"
+                  >
+                    <ExternalLink size={12} />
+                    <span>View</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
