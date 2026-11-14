@@ -1,4 +1,4 @@
-const { explainTopic, generatePracticeQuestions } = require('./ai.service');
+const { explainTopic, generatePracticeQuestions, suggestRoadmap } = require('./ai.service');
 
 async function practiceQuestions(req, res) {
     const { topic, difficulty, count } = req.body || {};
@@ -42,4 +42,24 @@ async function explain(req, res) {
     }
 }
 
-module.exports = { explain, practiceQuestions };
+module.exports = { explain, practiceQuestions, roadmapSuggestion };
+
+async function roadmapSuggestion(req, res) {
+    const { weakTopics, goal } = req.body || {};
+    if (!Array.isArray(weakTopics) || weakTopics.length === 0) {
+        return res.status(400).json({ error: 'weakTopics must be a non-empty array' });
+    }
+    if (weakTopics.length > 15) {
+        return res.status(400).json({ error: 'weakTopics must contain at most 15 items' });
+    }
+    if (weakTopics.some((t) => typeof t !== 'string' || t.trim().length === 0)) {
+        return res.status(400).json({ error: 'each item in weakTopics must be a non-empty string' });
+    }
+    try {
+        const roadmap = await suggestRoadmap({ weakTopics, goal });
+        res.json({ roadmap });
+    } catch (err) {
+        console.error('AI roadmap error:', err.message);
+        res.status(502).json({ error: 'AI service failed, try again' });
+    }
+}
