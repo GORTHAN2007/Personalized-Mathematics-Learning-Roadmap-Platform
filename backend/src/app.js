@@ -8,6 +8,7 @@ const topicsRoutes = require('./modules/topics/topics.routes');
 const roadmapRoutes = require('./modules/roadmap/roadmap.routes');
 const assessmentRoutes = require('./modules/assessment/assessment.routes');
 const communityRoutes = require('./modules/community/community.routes');
+const notesRoutes = require('./modules/notes/notes.routes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -32,6 +33,7 @@ app.use('/api/v1/topics', topicsRoutes);
 app.use('/api/v1/roadmap', roadmapRoutes);
 app.use('/api/v1/assessment', assessmentRoutes);
 app.use('/api/v1/community', communityRoutes);
+app.use('/api/v1/notes', notesRoutes);
 
 // Error Handling Middlewares
 app.use(notFoundHandler);

@@ -9,9 +9,10 @@ export const initialResources = [
     description: "An animated geometric walkthrough introducing vectors, linear combinations, and matrices as transformations of space.",
     format: "Video (15 min)",
     difficulty: "Beginner",
-    author: "Grant S. (Community Contributor)",
+    author: "Grant S. (3Blue1Brown)",
     likes: 342,
-    tags: ["Vectors", "Geometric Intuition", "Basis Vectors"]
+    tags: ["Vectors", "Geometric Intuition", "Basis Vectors"],
+    url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab"
   },
   {
     id: 2,
@@ -23,23 +24,25 @@ export const initialResources = [
     description: "Drag basis vectors i-hat and j-hat on a live 2D grid to watch the unit square stretch, shear, reflect, and scale with determinant readouts.",
     format: "Interactive Web App",
     difficulty: "All Levels",
-    author: "Elena R. (MathViz Lab)",
+    author: "GeoGebra Math Team",
     likes: 489,
-    tags: ["Simulation", "Determinant", "Shear & Rotate"]
+    tags: ["Simulation", "Determinant", "Shear & Rotate"],
+    url: "https://www.geogebra.org/m/mtnhghtg"
   },
   {
     id: 3,
-    title: "Eigenvector Hunter: The Matrix Diagonalization Game",
+    title: "Eigenvector Hunter: Visual Eigenvectors & Eigenvalues",
     subject: "linear-algebra",
     subjectName: "Linear Algebra",
-    category: "games",
-    categoryLabel: "Interactive Game",
-    description: "Test your spatial intuition by identifying which vectors do not change direction when arbitrary linear transformations are applied.",
-    format: "Browser Game",
+    category: "simulations",
+    categoryLabel: "Interactive Tool",
+    description: "Visual exploration of vectors that do not change direction when arbitrary linear transformations are applied.",
+    format: "Visual Tool",
     difficulty: "Intermediate",
-    author: "Prof. Vikram M.",
+    author: "Setosa Visual Science",
     likes: 215,
-    tags: ["Game", "Eigenvalues", "Intuition"]
+    tags: ["Eigenvalues", "Intuition", "Transformations"],
+    url: "https://setosa.io/ev/eigenvectors-and-eigenvalues/"
   },
   {
     id: 4,
@@ -49,11 +52,12 @@ export const initialResources = [
     category: "applications",
     categoryLabel: "Practical Application",
     description: "A comprehensive breakdown of how Markov transition matrices and the Perron-Frobenius theorem indexed the early World Wide Web.",
-    format: "Technical Article",
+    format: "Interactive Article",
     difficulty: "Intermediate",
-    author: "Devin K. (Data Systems)",
+    author: "Stand-up Maths / Numberphile",
     likes: 198,
-    tags: ["PageRank", "Markov Chains", "Search Engines"]
+    tags: ["PageRank", "Markov Chains", "Search Engines"],
+    url: "https://www.youtube.com/watch?v=JGQe4kiPnrU"
   },
   {
     id: 5,
@@ -63,11 +67,12 @@ export const initialResources = [
     category: "problems",
     categoryLabel: "Practice Problems",
     description: "15 progressively challenging problems covering row reduction, matrix rank, inconsistent systems, and elementary matrices with step-by-step solutions.",
-    format: "Problem Sheet & Hints",
+    format: "MIT OCW Exercises",
     difficulty: "Beginner-Intermediate",
-    author: "Amina T. (Math Circle)",
+    author: "Prof. Gilbert Strang (MIT)",
     likes: 174,
-    tags: ["Gaussian Elimination", "RREF", "Practice Set"]
+    tags: ["Gaussian Elimination", "RREF", "Practice Set"],
+    url: "https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/"
   },
   {
     id: 6,
@@ -77,11 +82,12 @@ export const initialResources = [
     category: "articles",
     categoryLabel: "Article",
     description: "Why the determinant represents the signed area or volume scaling factor, and what a determinant of zero tells us about dimension collapse.",
-    format: "Deep Dive Article",
+    format: "Interactive Article",
     difficulty: "Beginner",
-    author: "Marcus Chen",
+    author: "3Blue1Brown Article Series",
     likes: 280,
-    tags: ["Determinants", "Volume", "Area Scaling"]
+    tags: ["Determinants", "Volume", "Area Scaling"],
+    url: "https://www.3blue1brown.com/lessons/determinant"
   },
   {
     id: 7,
@@ -91,11 +97,12 @@ export const initialResources = [
     category: "simulations",
     categoryLabel: "Visual Simulation",
     description: "Drop a test point onto a 3D topographic loss landscape and observe gradient vectors guide the trajectory down to local minima.",
-    format: "3D Simulation",
+    format: "Interactive 3D Tool",
     difficulty: "Intermediate",
-    author: "NeuralMath Group",
+    author: "GeoGebra 3D Calc",
     likes: 312,
-    tags: ["Gradients", "Optimization", "3D Landscape"]
+    tags: ["Gradients", "Optimization", "3D Landscape"],
+    url: "https://www.geogebra.org/3d"
   },
   {
     id: 8,
@@ -105,11 +112,12 @@ export const initialResources = [
     category: "articles",
     categoryLabel: "Article",
     description: "Ditch confusing algebraic conditional probability formulas in favor of intuitive tree diagrams and frequency boxes.",
-    format: "Illustrated Article",
+    format: "Visual Deep Dive",
     difficulty: "Beginner",
-    author: "Sarah Jenkins",
+    author: "Grant S. (3Blue1Brown)",
     likes: 245,
-    tags: ["Bayes Theorem", "Probability", "Intuition"]
+    tags: ["Bayes Theorem", "Probability", "Intuition"],
+    url: "https://www.3blue1brown.com/lessons/bayes-theorem"
   },
   {
     id: 9,
@@ -118,12 +126,13 @@ export const initialResources = [
     subjectName: "Probability",
     category: "games",
     categoryLabel: "Interactive Game",
-    description: "Play 100 rounds of the famous 3-door paradox to experimentally verify why switching doors doubles your chances of winning the car.",
-    format: "Interactive Experiment",
+    description: "Play multiple rounds of the famous 3-door paradox to experimentally verify why switching doors doubles your chances of winning.",
+    format: "Online Simulator Game",
     difficulty: "All Levels",
-    author: "Leo Santos",
+    author: "Stanford Probability Lab",
     likes: 410,
-    tags: ["Monty Hall", "Paradox", "Experimental Probability"]
+    tags: ["Monty Hall", "Paradox", "Experimental Probability"],
+    url: "https://www.nytimes.com/interactive/2014/08/18/upshot/monty-hall-monty-fall-monte-carlo.html"
   },
   {
     id: 10,
@@ -133,11 +142,12 @@ export const initialResources = [
     category: "applications",
     categoryLabel: "Practical Application",
     description: "Generate small prime numbers, compute public and private keys using Euler's totient function, and encrypt/decrypt secret messages in your browser.",
-    format: "Interactive Tool",
+    format: "Interactive Encryption Tool",
     difficulty: "Intermediate-Advanced",
-    author: "CryptoStudy Group",
+    author: "Computerphile Interactive",
     likes: 367,
-    tags: ["RSA", "Cryptography", "Modular Math"]
+    tags: ["RSA", "Cryptography", "Modular Math"],
+    url: "https://www.youtube.com/watch?v=JD72Ry60eP4"
   },
   {
     id: 11,
@@ -147,11 +157,12 @@ export const initialResources = [
     category: "simulations",
     categoryLabel: "Visual Simulation",
     description: "Create nodes and weighted edges to watch Dijkstra's and A* pathfinding explore the priority queue in real time.",
-    format: "Visualizer Tool",
+    format: "Pathfinding Visualizer",
     difficulty: "Intermediate",
-    author: "CS Algorithms Club",
+    author: "Clément Mihailescu",
     likes: 295,
-    tags: ["Graph Theory", "Shortest Path", "Algorithms"]
+    tags: ["Graph Theory", "Shortest Path", "Algorithms"],
+    url: "https://clementmihailescu.github.io/Pathfinding-Visualizer/"
   },
   {
     id: 12,
@@ -161,11 +172,12 @@ export const initialResources = [
     category: "simulations",
     categoryLabel: "Visual Simulation",
     description: "Roll 1 to 50 virtual dice millions of times to watch arbitrary non-normal distributions magically converge into a pristine Gaussian bell curve.",
-    format: "Monte Carlo Simulator",
+    format: "Seeing Theory (Brown University)",
     difficulty: "Beginner",
-    author: "Prof. Rachel Green",
+    author: "Brown University Statistical Lab",
     likes: 260,
-    tags: ["CLT", "Normal Distribution", "Sampling"]
+    tags: ["CLT", "Normal Distribution", "Sampling"],
+    url: "https://seeing-theory.brown.edu/probability-distributions/index.html"
   }
 ];
 

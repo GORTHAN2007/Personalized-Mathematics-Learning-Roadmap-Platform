@@ -33,7 +33,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
-  overflow-x: hidden;
 }
 
 /* Custom scrollbars */
@@ -58,7 +57,6 @@ body {
   min-height: 100vh;
   background-color: var(--bg-primary);
   position: relative;
-  overflow-x: hidden;
 }
 
 /* Atmospheric subtle top beam of light (from Screenshot 2) */
@@ -280,9 +278,12 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  max-height: calc(100vh - 60px);
+  height: calc(100vh - 60px);
+  position: -webkit-sticky;
   position: sticky;
   top: 60px;
+  align-self: flex-start;
+  z-index: 25;
 }
 
 .sidebar-header {
@@ -416,7 +417,6 @@ body {
 .dashboard-content {
   flex: 1;
   padding: 36px 48px;
-  overflow-y: auto;
   max-width: 1040px;
 }
 
