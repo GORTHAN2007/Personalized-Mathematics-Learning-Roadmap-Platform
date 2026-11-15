@@ -75,13 +75,15 @@ export default function VerticalIconBar({ activePage, setActivePage, onOpenContr
 
       {/* Bottom Profile Avatar */}
       <div className="icon-bar-bottom">
-        <div 
+        <button
+          type="button"
           className="icon-bar-avatar"
           title="Account / Sign In"
+          aria-label="Account and sign in"
           onClick={onOpenAuth}
         >
           <User size={18} />
-        </div>
+        </button>
       </div>
     </aside>
   );
