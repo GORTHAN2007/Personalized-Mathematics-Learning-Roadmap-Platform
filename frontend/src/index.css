@@ -1527,3 +1527,145 @@ body {
     justify-content: space-between;
   }
 }
+
+
+/* Accessibility and interaction polish */
+:where(button, a, [role="button"], select, input, textarea):focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 3px;
+}
+
+.workbook-card {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.accordion-header {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.icon-bar-avatar {
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  font: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    padding: 24px 18px 112px;
+    max-width: none;
+    width: 100%;
+  }
+
+  .course-outline-sidebar {
+    max-height: 250px;
+  }
+
+  .workbook-actions-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .accordion-header {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .accordion-header-left {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .accordion-title-col h3 {
+    font-size: 14px;
+  }
+
+  .accordion-title-col p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+
+  .topic-row {
+    gap: 12px;
+    padding: 14px 8px;
+  }
+
+  .topic-content h4 {
+    flex-wrap: wrap;
+  }
+
+  .topic-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vertical-icon-bar {
+    width: 48px;
+    min-width: 48px;
+  }
+
+  .top-navbar {
+    height: 56px;
+    padding: 0 12px;
+  }
+
+  .nav-badge {
+    display: none;
+  }
+
+  .dashboard-content,
+  .page-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .workbook-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workbook-card {
+    min-height: 64px;
+  }
+
+  .accordion-header-right {
+    gap: 8px;
+  }
+
+  .unit-duration-pill {
+    display: none;
+  }
+
+  .course-title {
+    font-size: clamp(22px, 7vw, 28px);
+  }
+
+  .floating-bottom-banner {
+    width: calc(100% - 24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

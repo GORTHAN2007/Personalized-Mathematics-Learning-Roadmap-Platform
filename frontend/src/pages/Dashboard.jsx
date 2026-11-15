@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import CourseHeader from '../components/CourseHeader';
 import RoadmapSection from '../components/RoadmapSection';
@@ -13,6 +13,13 @@ export default function Dashboard({
   const [activeUnitId, setActiveUnitId] = useState(1);
   // Default to expanding the first unit
   const [expandedUnitIds, setExpandedUnitIds] = useState([1]);
+
+  // Reset the selected outline item when the learner switches subjects.
+  useEffect(() => {
+    const firstUnitId = units[0]?.id;
+    setActiveUnitId(firstUnitId ?? null);
+    setExpandedUnitIds(firstUnitId == null ? [] : [firstUnitId]);
+  }, [currentSubject?.id]);
 
   const handleToggleExpand = (unitId) => {
     setExpandedUnitIds(prev => 

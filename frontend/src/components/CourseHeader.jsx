@@ -50,11 +50,7 @@ export default function CourseHeader({
 
       {/* Workbook / Resource Quick Cards */}
       <div className="workbook-actions-grid">
-        <div 
-          className="workbook-card" 
-          onClick={() => onQuickAction('workbook')}
-          title="Open interactive scratchpad & notes"
-        >
+        <button type="button" className="workbook-card" onClick={() => onQuickAction('workbook')} title="Open interactive scratchpad & notes">
           <div className="workbook-card-icon">
             <BookText size={18} />
           </div>
@@ -62,13 +58,9 @@ export default function CourseHeader({
             <div className="workbook-card-title">Interactive Workbook</div>
             <div className="workbook-card-sub">Guided proofs & notes</div>
           </div>
-        </div>
+        </button>
 
-        <div 
-          className="workbook-card" 
-          onClick={() => onQuickAction('cheatsheet')}
-          title="View formulas and matrix identities"
-        >
+        <button type="button" className="workbook-card" onClick={() => onQuickAction('cheatsheet')} title="View formulas and matrix identities">
           <div className="workbook-card-icon">
             <FileCode size={18} />
           </div>
@@ -76,13 +68,9 @@ export default function CourseHeader({
             <div className="workbook-card-title">Formula Cheatsheet</div>
             <div className="workbook-card-sub">Essential theorems & rules</div>
           </div>
-        </div>
+        </button>
 
-        <div 
-          className="workbook-card" 
-          onClick={() => onQuickAction('simulations')}
-          title="Explore 2D and 3D geometric simulators"
-        >
+        <button type="button" className="workbook-card" onClick={() => onQuickAction('simulations')} title="Explore 2D and 3D geometric simulators">
           <div className="workbook-card-icon">
             <PlayCircle size={18} />
           </div>
@@ -90,13 +78,9 @@ export default function CourseHeader({
             <div className="workbook-card-title">Visual Simulations</div>
             <div className="workbook-card-sub">Interactive transformation tools</div>
           </div>
-        </div>
+        </button>
 
-        <div 
-          className="workbook-card" 
-          onClick={() => onQuickAction('community')}
-          title="Ask questions & discuss problems"
-        >
+        <button type="button" className="workbook-card" onClick={() => onQuickAction('community')} title="Ask questions & discuss problems">
           <div className="workbook-card-icon">
             <MessageSquareShare size={18} />
           </div>
@@ -104,7 +88,7 @@ export default function CourseHeader({
             <div className="workbook-card-title">Discussion & Problems</div>
             <div className="workbook-card-sub">Community contributions</div>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );
