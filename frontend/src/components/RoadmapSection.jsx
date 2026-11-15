@@ -49,8 +49,11 @@ export default function RoadmapSection({
               className={`roadmap-accordion-card ${isExpanded ? 'expanded' : ''}`}
             >
               {/* Accordion Header */}
-              <div 
+              <button
+                type="button"
                 className="accordion-header"
+                aria-expanded={isExpanded}
+                aria-controls={"unit-topics-" + unit.id}
                 onClick={() => onToggleExpand(unit.id)}
               >
                 <div className="accordion-header-left">
@@ -75,11 +78,11 @@ export default function RoadmapSection({
                     className={`accordion-toggle-arrow ${isExpanded ? 'rotated' : ''}`}
                   />
                 </div>
-              </div>
+              </button>
 
               {/* Accordion Body: Subtopics list */}
               {isExpanded && (
-                <div className="accordion-body">
+                <div className="accordion-body" id={"unit-topics-" + unit.id}>
                   {unit.topics && unit.topics.length > 0 ? (
                     unit.topics.map((topic) => {
                       const isTopicDone = !!topic.completed;
@@ -92,6 +95,8 @@ export default function RoadmapSection({
                               type="button"
                               className={`topic-checkbox ${isTopicDone ? 'checked' : ''}`}
                               title={isTopicDone ? "Mark incomplete" : "Mark as completed"}
+                              aria-label={(isTopicDone ? "Mark incomplete: " : "Mark complete: ") + topic.title}
+                              aria-pressed={isTopicDone}
                               onClick={() => onToggleTopicCompletion(unit.id, topic.id)}
                             >
                               {isTopicDone && <Check size={11} strokeWidth={3} />}
