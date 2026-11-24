@@ -232,7 +232,7 @@ const SUBJECT_VIDEOS = {
   ]
 };
 
-export default function SimulationsPanel({ onClose, currentSubject }) {
+export default function SimulationsPanel({ onClose, currentSubject, onOpenARVR }) {
   const subjectKey = currentSubject?.id || 'linear-algebra';
   const videos = SUBJECT_VIDEOS[subjectKey] || SUBJECT_VIDEOS['linear-algebra'];
 
@@ -256,6 +256,50 @@ export default function SimulationsPanel({ onClose, currentSubject }) {
             </div>
           </div>
           <button onClick={onClose} style={closeBtnStyle}><X size={18} /></button>
+        </div>
+
+        {/* ISD Mobile AR/VR Lab Quick Launch Banner */}
+        <div style={{
+          padding: '10px 20px',
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15))',
+          borderBottom: '1px solid rgba(139, 92, 246, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '12px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{
+              background: 'rgba(139, 92, 246, 0.3)',
+              color: '#c4b5fd',
+              fontSize: '11px',
+              fontWeight: 600,
+              padding: '2px 6px',
+              borderRadius: '4px',
+              textTransform: 'uppercase'
+            }}>ISD AR/VR</span>
+            <span style={{ fontSize: '13px', color: '#e2e8f0' }}>
+              Interactive 3D vector transformations & AR surface inspection (NPTEL Mobile VR & AI)
+            </span>
+          </div>
+          <button
+            onClick={() => {
+              if (onOpenARVR) onOpenARVR();
+            }}
+            style={{
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              border: 'none',
+              color: '#ffffff',
+              fontSize: '12px',
+              fontWeight: 600,
+              padding: '6px 14px',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            Launch AR/VR Lab
+          </button>
         </div>
 
         <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>

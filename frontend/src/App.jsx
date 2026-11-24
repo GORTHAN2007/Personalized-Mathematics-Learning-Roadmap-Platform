@@ -7,6 +7,7 @@ import ResourceSection from './components/ResourceSection';
 import WorkbookPanel from './components/WorkbookPanel';
 import CheatsheetPanel from './components/CheatsheetPanel';
 import SimulationsPanel from './components/SimulationsPanel';
+import { ARVRModal } from '@isd';
 
 // Pages
 import Dashboard from './pages/Dashboard';
@@ -45,6 +46,7 @@ export default function App() {
 
   // Panel State
   const [activePanel, setActivePanel] = useState(null); // 'workbook' | 'cheatsheet' | 'simulations' | null
+  const [isARVROpen, setIsARVROpen] = useState(false);
 
   // Currently active subject object
   const currentSubject = subjects.find(s => s.id === currentSubjectId) || subjects[0];
@@ -254,6 +256,8 @@ export default function App() {
           setAuthModalMode('signup');
           setAuthModalOpen(true);
         }}
+        onOpenARVR={() => setIsARVROpen(true)}
+        isARVROpen={isARVROpen}
       />
 
       {/* Main Content Area */}
@@ -372,8 +376,18 @@ export default function App() {
         <CheatsheetPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
       )}
       {activePanel === 'simulations' && (
-        <SimulationsPanel currentSubject={currentSubject} onClose={() => setActivePanel(null)} />
+        <SimulationsPanel 
+          currentSubject={currentSubject} 
+          onClose={() => setActivePanel(null)} 
+          onOpenARVR={() => setIsARVROpen(true)}
+        />
       )}
+
+      {/* ISD: Mobile AR/VR Mathematics Laboratory Modal */}
+      <ARVRModal
+        isOpen={isARVROpen}
+        onClose={() => setIsARVROpen(false)}
+      />
     </div>
   );
 }

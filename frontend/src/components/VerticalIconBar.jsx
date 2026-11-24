@@ -8,10 +8,18 @@ import {
   BookOpen, 
   MoreHorizontal, 
   ChevronLeft,
-  User
+  User,
+  Glasses
 } from 'lucide-react';
 
-export default function VerticalIconBar({ activePage, setActivePage, onOpenContribute, onOpenAuth }) {
+export default function VerticalIconBar({ 
+  activePage, 
+  setActivePage, 
+  onOpenContribute, 
+  onOpenAuth,
+  onOpenARVR,
+  isARVROpen
+}) {
   return (
     <aside className="vertical-icon-bar" aria-label="Main Navigation">
       {/* Top action / Back */}
@@ -70,6 +78,15 @@ export default function VerticalIconBar({ activePage, setActivePage, onOpenContr
           onClick={() => setActivePage('community')}
         >
           <MessageSquare size={20} />
+        </button>
+
+        {/* ISD Mobile AR/VR Mathematics Laboratory (NPTEL/SWAYAM) */}
+        <button 
+          className={`icon-bar-btn ${isARVROpen ? 'active' : ''}`}
+          title="ISD: Mobile AR/VR Math Lab (NPTEL/SWAYAM)"
+          onClick={onOpenARVR}
+        >
+          <Glasses size={20} />
         </button>
       </nav>
 
