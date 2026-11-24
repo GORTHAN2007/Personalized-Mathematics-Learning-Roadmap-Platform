@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISD — Mobile AR/VR & AI Mathematics Laboratory</title>
+  <!-- Three.js and OrbitControls from unpkg CDN -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #090b14;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: rgba(15, 19, 32, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+    .badge {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c4b5fd;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: rgba(139, 92, 246, 0.3);
+      color: #fff;
+      border: 1px solid rgba(139, 92, 246, 0.5);
+    }
+    .workspace {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+    .viewport {
+      flex: 1;
+      position: relative;
+      background: #06080e;
+    }
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+    video#camera-feed {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.4;
+      display: none;
+    }
+    .stereo-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      background: rgba(255, 255, 255, 0.35);
+      display: none;
+      pointer-events: none;
+    }
+    .hud {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .hud-box {
+      background: rgba(15, 19, 32, 0.85);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      backdrop-filter: blur(8px);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #cbd5e1;
+      pointer-events: auto;
+    }
+    .sidebar {
+      width: 320px;
+      background: #0f121d;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+    }
+    .card {
+      background: rgba(22, 27, 43, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card h4 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #f1f5f9;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+    .btn {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      background: rgba(139, 92, 246, 0.2);
+      border-color: #8b5cf6;
+      color: #fff;
+    }
+    .btn.active {
+      background: rgba(99, 102, 241, 0.35);
+      border-color: #818cf8;
+      color: #fff;
+      font-weight: 600;
+    }
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+    .slider-row span:last-child {
+      color: #38bdf8;
+      font-family: monospace;
+    }
+    input[type=range] {
+      accent-color: #8b5cf6;
+      cursor: pointer;
+    }
+    .concept {
+      background: rgba(15, 23, 42, 0.8);
+      border-left: 3px solid #8b5cf6;
+      padding: 8px 10px;
+      border-radius: 0 6px 6px 0;
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .concept strong {
+      color: #c4b5fd;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span class="badge">NPTEL/SWAYAM Mobile VR & AI</span>
+      <h1 class="title">ISD AR/VR Mathematics Laboratory</h1>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-vr" onclick="switchLab('vr')">VR Vector Space & Transformations</button>
+      <button class="tab-btn" id="tab-ar" onclick="switchLab('ar')">AR 3D Surface & Gradient Explorer</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <!-- Viewport -->
+    <div class="viewport">
+      <video id="camera-feed" autoplay playsinline muted></video>
+      <div id="canvas-container"></div>
+      <div class="stereo-divider" id="stereo-divider"></div>
+      <div class="hud" id="hud">
+        <div class="hud-box" id="hud-text">Initializing 3D VR Engine...</div>
+      </div>
+    </div>
+
+    <!-- Sidebar Controls -->
+    <aside class="sidebar">
+      <div class="concept" id="concept-box">
+        <strong>NPTEL Mobile VR Concept:</strong> Demonstrates <em>Spatial Coordinate Transformations</em> and <em>Stereoscopic Mobile VR Rendering (SBS)</em>.
+      </div>
+
+      <!-- VR Controls -->
+      <div id="vr-controls">
+        <div class="card">
+          <h4>VR View Mode</h4>
+          <div class="btn-row">
+            <button class="btn active" id="btn-mono" onclick="setStereo(false)">3D Orbit</button>
+            <button class="btn" id="btn-stereo" onclick="setStereo(true)">Cardboard VR (SBS)</button>
+          </div>
+          <div class="slider-row" style="margin-top: 6px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span>Interpupillary Distance (IPD)</span>
+              <span id="ipd-val">64 mm</span>
+            </div>
+            <input type="range" min="50" max="75" value="64" oninput="updateIPD(this.value)">
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Transformation Presets</h4>
+          <div class="btn-row" style="flex-wrap: wrap;">
+            <button class="btn active" id="btn-rot" onclick="setPreset('rot')">Rotation (Yaw)</button>
+            <button class="btn" id="btn-scale" onclick="setPreset('scale')">Scaling</button>
+            <button class="btn" id="btn-shear" onclick="setPreset('shear')">Shear Space</button>
+            <button class="btn" id="btn-ident" onclick="setPreset('ident')">Identity</button>
+          </div>
+          <div class="slider-row" style="margin-top: 6px;">
+            <div style="display: flex; justify-content: space-between;">
+              <span id="param-label">Yaw Angle (θ)</span>
+              <span id="param-val">30°</span>
+            </div>
+            <input type="range" id="param-slider" min="-180" max="180" value="30" oninput="updateParam(this.value)">
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Vector Coordinates v = [x, y, z]</h4>
+          <div class="slider-row">
+            <div style="display: flex; justify-content: space-between;"><span>X</span><span id="vx-val">1.5</span></div>
+            <input type="range" min="-3" max="3" step="0.1" value="1.5" oninput="updateVector('x', this.value)">
+          </div>
+          <div class="slider-row">
+            <div style="display: flex; justify-content: space-between;"><span>Y</span><span id="vy-val">1.2</span></div>
+            <input type="range" min="-3" max="3" step="0.1" value="1.2" oninput="updateVector('y', this.value)">
+          </div>
+          <div class="slider-row">
+            <div style="display: flex; justify-content: space-between;"><span>Z</span><span id="vz-val">1.0</span></div>
+            <input type="range" min="-3" max="3" step="0.1" value="1.0" oninput="updateVector('z', this.value)">
+          </div>
+        </div>
+      </div>
+
+      <!-- AR Controls -->
+      <div id="ar-controls" style="display: none;">
+        <div class="card">
+          <h4>AR Camera Passthrough</h4>
+          <button class="btn" id="btn-camera" onclick="toggleCamera()">Enable Live AR Camera</button>
+        </div>
+
+        <div class="card">
+          <h4>Mathematical Surface Manifold</h4>
+          <div class="btn-row" style="flex-direction: column; gap: 4px;">
+            <button class="btn active" id="btn-saddle" onclick="setSurface('saddle')">Hyperbolic Paraboloid (Saddle)</button>
+            <button class="btn" id="btn-paraboloid" onclick="setSurface('paraboloid')">Elliptic Paraboloid</button>
+            <button class="btn" id="btn-wave" onclick="setSurface('wave')">Sinusoidal Ripple Field</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Calculus Telemetry (Tap Surface)</h4>
+          <div class="slider-row">
+            <span>Point P(x, y, z): <strong id="ar-pt" style="color: #38bdf8;">(1.0, 1.0, 0.0)</strong></span>
+            <span>Gradient ∇f: <strong id="ar-grad" style="color: #facc15;">[0.5, -0.5]</strong></span>
+            <span>Slope Magnitude: <strong id="ar-slope" style="color: #c4b5fd;">0.71</strong></span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    let currentMode = 'vr';
+    let isStereo = false;
+    let ipdVal = 0.064;
+    let preset = 'rot';
+    let paramVal = 30;
+    let vCoord = { x: 1.5, y: 1.2, z: 1.0 };
+
+    let currentSurface = 'saddle';
+    let cameraStream = null;
+
+    // Three.js Core
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x090b14);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(5, 4, 6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+
+    // Lights
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambLight);
+    const dirLight = new THREE.DirectionalLight(0xa78bfa, 1.2);
+    dirLight.position.set(5, 10, 7);
+    scene.add(dirLight);
+
+    // Groups
+    const vrGroup = new THREE.Group();
+    const arGroup = new THREE.Group();
+    scene.add(vrGroup);
+    scene.add(arGroup);
+    arGroup.visible = false;
+
+    // VR Scene Setup
+    const grid = new THREE.GridHelper(10, 20, 0x6366f1, 0x1e293b);
+    vrGroup.add(grid);
+
+    const origArrow = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 1, 0x38bdf8, 0.35, 0.18);
+    const transArrow = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 1, 0xf59e0b, 0.4, 0.2);
+    vrGroup.add(origArrow);
+    vrGroup.add(transArrow);
+
+    const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+    const boxEdges = new THREE.EdgesGeometry(boxGeo);
+    const cubeOrig = new THREE.LineSegments(boxEdges, new THREE.LineBasicMaterial({ color: 0x475569, opacity: 0.4, transparent: true }));
+    cubeOrig.position.set(0.5, 0.5, 0.5);
+    const cubeTrans = new THREE.LineSegments(boxEdges.clone(), new THREE.LineBasicMaterial({ color: 0xc084fc, linewidth: 2 }));
+    cubeTrans.position.set(0.5, 0.5, 0.5);
+    vrGroup.add(cubeOrig);
+    vrGroup.add(cubeTrans);
+
+    // AR Scene Setup
+    let surfaceMesh = null;
+    const marker = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+    const normArrow = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 0), 1.2, 0xfacc15, 0.3, 0.15);
+    const tangPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.5, 1.5), 
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4, side: THREE.DoubleSide, wireframe: true })
+    );
+    arGroup.add(marker);
+    arGroup.add(normArrow);
+    arGroup.add(tangPlane);
+
+    function buildSurface(type) {
+      if (surfaceMesh) arGroup.remove(surfaceMesh);
+      const geo = new THREE.PlaneGeometry(6, 6, 40, 40);
+      geo.rotateX(-Math.PI / 2);
+      const pos = geo.attributes.position;
+      const colors = [];
+      const col1 = new THREE.Color(0x38bdf8);
+      const col2 = new THREE.Color(0xf43f5e);
+
+      for (let i = 0; i < pos.count; i++) {
+        const x = pos.getX(i);
+        const z = pos.getZ(i);
+        let y = 0;
+        if (type === 'saddle') y = (x * x - z * z) / 4;
+        else if (type === 'paraboloid') y = (x * x + z * z) / 4;
+        else if (type === 'wave') y = Math.sin(Math.sqrt(x * x + z * z));
+        pos.setY(i, y);
+
+        const t = Math.max(0, Math.min(1, (y + 1.5) / 3));
+        const c = col1.clone().lerp(col2, t);
+        colors.push(c.r, c.g, c.b);
+      }
+      geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geo.computeVertexNormals();
+      surfaceMesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.4 }));
+      arGroup.add(surfaceMesh);
+      evalAR(1.0, 1.0);
+    }
+    buildSurface('saddle');
+
+    // Update Transformations
+    function updateVR() {
+      const vDir = new THREE.Vector3(vCoord.x, vCoord.y, vCoord.z);
+      const vLen = Math.max(vDir.length(), 0.01);
+      vDir.normalize();
+      origArrow.setDirection(vDir);
+      origArrow.setLength(vLen, 0.35, 0.18);
+
+      let rad = (paramVal * Math.PI) / 180;
+      let cos = Math.cos(rad);
+      let sin = Math.sin(rad);
+      let m = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+
+      if (preset === 'rot') m = [[cos, 0, sin], [0, 1, 0], [-sin, 0, cos]];
+      else if (preset === 'scale') {
+        let s = paramVal / 30;
+        m = [[s, 0, 0], [0, s, 0], [0, 0, 1]];
+      } else if (preset === 'shear') {
+        let k = paramVal / 50;
+        m = [[1, k, 0], [0, 1, 0], [0, 0, 1]];
+      }
+
+      let tx = m[0][0] * vCoord.x + m[0][1] * vCoord.y + m[0][2] * vCoord.z;
+      let ty = m[1][0] * vCoord.x + m[1][1] * vCoord.y + m[1][2] * vCoord.z;
+      let tz = m[2][0] * vCoord.x + m[2][1] * vCoord.y + m[2][2] * vCoord.z;
+
+      const transDir = new THREE.Vector3(tx, ty, tz);
+      const transLen = Math.max(transDir.length(), 0.01);
+      transDir.normalize();
+      transArrow.setDirection(transDir);
+      transArrow.setLength(transLen, 0.4, 0.2);
+
+      const m4 = new THREE.Matrix4();
+      m4.set(
+        m[0][0], m[0][1], m[0][2], 0,
+        m[1][0], m[1][1], m[1][2], 0,
+        m[2][0], m[2][1], m[2][2], 0,
+        0, 0, 0, 1
+      );
+      cubeTrans.matrixAutoUpdate = false;
+      cubeTrans.matrix.copy(m4);
+
+      document.getElementById('hud-text').innerHTML = `
+        <span style="color:#38bdf8">● Vector v:</span> [${vCoord.x.toFixed(1)}, ${vCoord.y.toFixed(1)}, ${vCoord.z.toFixed(1)}]<br>
+        <span style="color:#f59e0b">● Transformed v':</span> [${tx.toFixed(2)}, ${ty.toFixed(2)}, ${tz.toFixed(2)}]
+      `;
+    }
+    updateVR();
+
+    function evalAR(x, z) {
+      let y = 0, dx = 0, dy = 0;
+      if (currentSurface === 'saddle') {
+        y = (x * x - z * z) / 4;
+        dx = x / 2;
+        dy = -z / 2;
+      } else if (currentSurface === 'paraboloid') {
+        y = (x * x + z * z) / 4;
+        dx = x / 2;
+        dy = z / 2;
+      } else if (currentSurface === 'wave') {
+        let r = Math.sqrt(x * x + z * z) || 0.001;
+        y = Math.sin(r);
+        dx = Math.cos(r) * (x / r);
+        dy = Math.cos(r) * (z / r);
+      }
+
+      marker.position.set(x, y, z);
+      const norm = new THREE.Vector3(-dx, 1, -dy).normalize();
+      normArrow.position.set(x, y, z);
+      normArrow.setDirection(norm);
+      normArrow.setLength(1.3, 0.35, 0.18);
+
+      tangPlane.position.set(x, y, z);
+      const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), norm);
+      tangPlane.setRotationFromQuaternion(quat);
+
+      const slope = Math.sqrt(dx * dx + dy * dy);
+      document.getElementById('ar-pt').innerText = `(${x.toFixed(2)}, ${z.toFixed(2)}, ${y.toFixed(2)})`;
+      document.getElementById('ar-grad').innerText = `[${dx.toFixed(2)}, ${dy.toFixed(2)}]`;
+      document.getElementById('ar-slope').innerText = slope.toFixed(2);
+      document.getElementById('hud-text').innerHTML = `
+        <span style="color:#38bdf8">Point P:</span> (${x.toFixed(2)}, ${z.toFixed(2)}, ${y.toFixed(2)})<br>
+        <span style="color:#facc15">Gradient ∇f:</span> [${dx.toFixed(2)}, ${dy.toFixed(2)}] | Slope: ${slope.toFixed(2)}
+      `;
+    }
+
+    // Raycast on click
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    renderer.domElement.addEventListener('pointerdown', (e) => {
+      if (currentMode !== 'ar') return;
+      const rect = renderer.domElement.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      if (surfaceMesh) {
+        const hits = raycaster.intersectObject(surfaceMesh);
+        if (hits.length > 0) {
+          evalAR(hits[0].point.x, hits[0].point.z);
+        }
+      }
+    });
+
+    // Animate Loop
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+
+      if (!isStereo || currentMode === 'ar') {
+        renderer.setScissorTest(false);
+        renderer.setViewport(0, 0, w, h);
+        renderer.render(scene, camera);
+      } else {
+        const half = w / 2;
+        renderer.setScissorTest(true);
+
+        renderer.setScissor(0, 0, half, h);
+        renderer.setViewport(0, 0, half, h);
+        camera.aspect = half / h;
+        camera.updateProjectionMatrix();
+        camera.translateX(-ipdVal * 0.5);
+        renderer.render(scene, camera);
+        camera.translateX(ipdVal * 0.5);
+
+        renderer.setScissor(half, 0, half, h);
+        renderer.setViewport(half, 0, half, h);
+        camera.translateX(ipdVal * 0.5);
+        renderer.render(scene, camera);
+        camera.translateX(-ipdVal * 0.5);
+      }
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+    // Control Handlers
+    function switchLab(mode) {
+      currentMode = mode;
+      document.getElementById('tab-vr').classList.toggle('active', mode === 'vr');
+      document.getElementById('tab-ar').classList.toggle('active', mode === 'ar');
+      document.getElementById('vr-controls').style.display = mode === 'vr' ? 'block' : 'none';
+      document.getElementById('ar-controls').style.display = mode === 'ar' ? 'block' : 'none';
+      vrGroup.visible = mode === 'vr';
+      arGroup.visible = mode === 'ar';
+
+      if (mode === 'ar') {
+        setStereo(false);
+        document.getElementById('concept-box').innerHTML = '<strong>NPTEL AR/VR Concept:</strong> Demonstrates <em>Augmented Reality Video Passthrough</em>, <em>Spatial Raycasting</em>, and <em>Surface Normals</em> for collision & occlusion.';
+        evalAR(1.0, 1.0);
+      } else {
+        document.getElementById('concept-box').innerHTML = '<strong>NPTEL Mobile VR Concept:</strong> Demonstrates <em>Spatial Coordinate Transformations</em> and <em>Stereoscopic Mobile VR Rendering (SBS)</em>.';
+        updateVR();
+      }
+    }
+
+    function setStereo(val) {
+      isStereo = val;
+      document.getElementById('btn-mono').classList.toggle('active', !val);
+      document.getElementById('btn-stereo').classList.toggle('active', val);
+      document.getElementById('stereo-divider').style.display = val ? 'block' : 'none';
+      if (!val) {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+    }
+
+    function updateIPD(val) {
+      ipdVal = val / 1000;
+      document.getElementById('ipd-val').innerText = val + ' mm';
+    }
+
+    function setPreset(p) {
+      preset = p;
+      ['rot', 'scale', 'shear', 'ident'].forEach(id => {
+        document.getElementById('btn-' + id).classList.toggle('active', id === p);
+      });
+      const lbl = document.getElementById('param-label');
+      const sld = document.getElementById('param-slider');
+      if (p === 'rot') {
+        lbl.innerText = 'Yaw Angle (θ)';
+        sld.min = -180; sld.max = 180; sld.value = 30;
+      } else if (p === 'scale') {
+        lbl.innerText = 'Scaling Factor';
+        sld.min = 10; sld.max = 80; sld.value = 30;
+      } else if (p === 'shear') {
+        lbl.innerText = 'Shear Factor';
+        sld.min = -100; sld.max = 100; sld.value = 40;
+      } else {
+        lbl.innerText = 'Identity (1.0)';
+        sld.value = 0;
+      }
+      paramVal = parseFloat(sld.value);
+      document.getElementById('param-val').innerText = sld.value;
+      updateVR();
+    }
+
+    function updateParam(val) {
+      paramVal = parseFloat(val);
+      document.getElementById('param-val').innerText = val;
+      updateVR();
+    }
+
+    function updateVector(axis, val) {
+      vCoord[axis] = parseFloat(val);
+      document.getElementById('v' + axis + '-val').innerText = val;
+      updateVR();
+    }
+
+    function setSurface(s) {
+      currentSurface = s;
+      ['saddle', 'paraboloid', 'wave'].forEach(id => {
+        document.getElementById('btn-' + id).classList.toggle('active', id === s);
+      });
+      buildSurface(s);
+    }
+
+    async function toggleCamera() {
+      const vid = document.getElementById('camera-feed');
+      const btn = document.getElementById('btn-camera');
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+        vid.style.display = 'none';
+        scene.background = new THREE.Color(0x090b14);
+        btn.innerText = 'Enable Live AR Camera';
+        btn.classList.remove('active');
+      } else {
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+          vid.srcObject = cameraStream;
+          vid.style.display = 'block';
+          scene.background = null;
+          btn.innerText = 'Disable AR Camera';
+          btn.classList.add('active');
+        } catch (err) {
+          alert('Camera passthrough not available on this device: ' + err.message);
+        }
+      }
+    }
+  </script>
+</body>
+</html>

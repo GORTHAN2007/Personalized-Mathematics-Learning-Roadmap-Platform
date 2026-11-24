@@ -1,0 +1,19 @@
+{
+  "name": "isd-mobile-ar-vr",
+  "version": "1.0.0",
+  "description": "Interactive Systems & Demonstrations - Mobile Virtual Reality & Artificial Intelligence Laboratory (NPTEL/SWAYAM Course Alignment)",
+  "main": "index.js",
+  "scripts": {
+    "demo": "open standalone/index.html"
+  },
+  "keywords": [
+    "virtual-reality",
+    "augmented-reality",
+    "mobile-vr",
+    "threejs",
+    "nptel",
+    "swayam"
+  ],
+  "author": "Mohd Kaif",
+  "license": "ISC"
+}
